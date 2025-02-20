@@ -1,0 +1,156 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.greenrobot.greendao'  // 应用插件
+apply plugin: 'kotlinx-serialization'
+
+apply plugin: 'io.sentry.android.gradle'
+apply plugin: 'org.greenrobot.greendao'
+
+def defaultPropertiesFile = rootProject.file("buildsystem/default.properties")
+def defaultProperties = new Properties()
+defaultProperties.load(new FileInputStream(defaultPropertiesFile))
+
+def keystorePropertiesFile = rootProject.file("buildsystem/keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    defaultProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    signingConfigs {
+
+        release {
+            keyAlias defaultProperties['keyAlias']
+            keyPassword defaultProperties['keyPassword']
+            storeFile file(defaultProperties['storeFile'])
+            storePassword defaultProperties['storePassword']
+        }
+    }
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "com.carlos.grabredenvelope"
+        minSdkVersion 18
+        targetSdkVersion 33
+        versionCode 360
+        versionName "3.6.0"
+        flavorDimensions "360"  // 和 versionCode相同
+        ndk {
+            // 选择要添加的对应 cpu 类型的 .so 库。
+            abiFilters 'armeabi-v7a', 'x86'
+            // 还可以添加 'armeabi', 'arm64-v8a', 'x86_64', 'mips', 'mips64'
+        }
+
+        manifestPlaceholders = [
+                JPUSH_PKGNAME: applicationId,
+                JPUSH_APPKEY : defaultProperties.getProperty('JPUSH_APPKEY'), //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL: "developer-default",  // 暂时填写默认值即可.
+        ]
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs 'zh'
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+
+    //多渠道打包
+    productFlavors {
+        dev {  // 开发测试版本
+            buildConfigField("String", "UMENG_APPKEY_DEV", "\"${defaultProperties['UMENG_APPKEY_DEV']}\"")
+            buildConfigField("String", "SENTRY_DSN", "\"${defaultProperties['SENTRY_DSN_DEV']}\"")
+
+        }
+        production {   // 正式发布版本
+            buildConfigField("String", "UMENG_APPKEY", "\"${defaultProperties['UMENG_APPKEY']}\"")
+            buildConfigField("String", "SENTRY_DSN", "\"${defaultProperties['SENTRY_DSN']}\"")
+        }
+    }
+
+    buildFeatures {
+        viewBinding {
+            enabled = true
+        }
+    }
+    namespace 'com.carlos.grabredenvelope'
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+}
+
+
+configurations.all {
+
+    /**
+     * 用于控制SNAPSHOT版本下载刷新频率，默认每隔24小时，gradle会检查一次依赖
+     * Release版本如果本地已下载则不会主动从镜像下载
+     */
+    // 每个 build 的发布检查更新
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+
+}
+
+// 修改APK名字
+android.applicationVariants.all { variant ->
+    variant.outputs.all {
+        outputFileName = "GrabRedEnvelope${versionName}.apk"
+    }
+}
+
+sentry {
+    tracingInstrumentation {
+        enabled = true
+    }
+}
+
+greendao {
+    schemaVersion 2  // 数据库版本号
+    daoPackage 'com.carlos.grabredenvelope.db'  // 设置DaoMaster、DaoSession、Dao包名
+    targetGenDir 'src/main/java'  // 设置DaoMaster、DaoSession、Dao目录
+    // targetGenDirTest：设置生成单元测试目录
+    // generateTests：设置自动生成单元测试用例
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
+
+    testImplementation 'junit:junit:4.13.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+
+//    implementation 'com.carlos.cutils:cutils:0.0.28'
+    implementation 'com.github.xbdcc:cutils:0.0.30-SNAPSHOT'
+
+    //jpush
+    implementation 'cn.jiguang.sdk:jcore:4.0.0'
+    implementation 'cn.jiguang.sdk:jpush:4.8.5'
+
+    //umeng
+    implementation 'com.umeng.umsdk:common:9.5.0'// 必选
+    implementation 'com.umeng.umsdk:asms:1.4.1'// 必选
+    implementation 'com.umeng.umsdk:apm:1.7.0' // 错误分析模块改为独立库，看crash和性能数据请一定集成
+
+    implementation 'io.sentry:sentry-android:6.10.0'
+    implementation 'com.google.android.material:material:1.5.0'
+
+    implementation 'org.greenrobot:greendao:3.2.2' // add library
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+}

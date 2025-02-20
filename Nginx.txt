@@ -1,0 +1,5 @@
+# Nginx配置
+location https://github.com/JCXYOZH/rob-red-envelope/control.json {
+    add_header Content-Type application/json;
+    alias /path/to/control.json;
+}
