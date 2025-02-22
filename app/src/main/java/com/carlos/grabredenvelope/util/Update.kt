@@ -237,7 +237,7 @@ class Update(private val context: Context, private val type: Int) {
         private val TAG = "Version"
 
         // 获取版本信息来检测更新网址
-        val check_update = "https://github.com/JCXYOZH/rob-red-envelope/blob/master/update.xml"
+        val check_update = "http://xbdcc.cn/GrabRedEnvelope/update.xml"
 
         val MalformedURLException = 4
         val IOException = 5

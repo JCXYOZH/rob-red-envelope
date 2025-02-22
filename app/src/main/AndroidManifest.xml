@@ -1,64 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Remove duplicate permission declaration for INTERNET -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Umeng -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- AndroidManifest.xml 新增权限 -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
-        android:name=".MyApplication"
-        android:icon="@mipmap/xiaobudian"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+            android:name=".MyApplication"
+            android:icon="@mipmap/xiaobudian"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
+
+        <!-- MainActivity with intent filter, added android:exported -->
         <activity android:name="com.carlos.grabredenvelope.activity.MainActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden"
-            android:exported="true">
+                  android:screenOrientation="portrait"
+                  android:windowSoftInputMode="stateHidden"
+                  android:exported="true"> <!-- Added android:exported -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
+        <!-- WechatService with intent filter, added android:exported -->
         <service
-            android:name=".services.WechatService"
-            android:label="@string/grab_wechat_envelope"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
+                android:name=".services.WechatService"
+                android:label="@string/grab_wechat_envelope"
+                android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+                android:exported="true"> <!-- Added android:exported -->
             <intent-filter android:priority="1000">
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
             <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/wechat_service"/>
+                    android:name="android.accessibilityservice"
+                    android:resource="@xml/wechat_service"/>
         </service>
 
+        <!-- EmojiService with intent filter, added android:exported -->
         <service
-            android:name=".services.EmojiService"
-            android:label="@string/auto_send_emoji"
-            android:icon="@mipmap/ic_launcher"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
+                android:name=".services.EmojiService"
+                android:label="@string/auto_send_emoji"
+                android:icon="@mipmap/ic_launcher"
+                android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+                android:exported="true"> <!-- Added android:exported -->
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
             <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/emoji_service"/>
+                    android:name="android.accessibilityservice"
+                    android:resource="@xml/emoji_service"/>
         </service>
 
+        <!-- MessageActivity does not need android:exported since it has no intent filter -->
         <activity android:name="com.carlos.grabredenvelope.receiver.MessageActivity"/>
 
+        <!-- JpushService and JpushReceiver with no intent filters, so they remain android:exported="false" -->
         <service android:name=".services.JpushService"
                  android:enabled="true"
                  android:exported="false"
@@ -69,27 +70,21 @@
         </service>
 
         <receiver
-            android:name=".receiver.JpushReceiver"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":pushcore">
+                android:name=".receiver.JpushReceiver"
+                android:enabled="true"
+                android:exported="false"
+                android:process=":pushcore">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
-
+        <!-- Added meta-data for auto-init -->
         <meta-data
-            android:name="io.sentry.auto-init"
-            android:value="false" />
-    </application>
+                android:name="io.sentry.auto-init"
+                android:value="false" />
 
-    <!-- JNI时间校验库 -->
-    <application>
-        <meta-data
-                android:name="ntp_server"
-                android:value="pool.ntp.org"/>
     </application>
 
 </manifest>

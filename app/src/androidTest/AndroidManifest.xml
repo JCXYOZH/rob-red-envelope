@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.carlos.grabredenvelope">
+
+    <application
+            android:name=".MyApplication"
+            android:icon="@mipmap/xiaobudian"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
+
+        <!-- Explicitly specify android:exported for testing activities -->
+        <activity
+                android:name="androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
+                android:exported="true">
+        </activity>
+
+        <activity
+                android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
+                android:exported="true">
+        </activity>
+
+        <activity
+                android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyFloatingActivity"
+                android:exported="true">
+        </activity>
+
+    </application>
+</manifest>

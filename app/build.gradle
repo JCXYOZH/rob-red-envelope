@@ -7,6 +7,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'io.sentry.android.gradle'
 apply plugin: 'org.greenrobot.greendao'
 
+// 加载配置文件
 def defaultPropertiesFile = rootProject.file("buildsystem/default.properties")
 def defaultProperties = new Properties()
 defaultProperties.load(new FileInputStream(defaultPropertiesFile))
@@ -18,7 +19,6 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     signingConfigs {
-
         release {
             keyAlias defaultProperties['keyAlias']
             keyPassword defaultProperties['keyPassword']
@@ -32,9 +32,9 @@ android {
         applicationId "com.carlos.grabredenvelope"
         minSdkVersion 18
         targetSdkVersion 33
-        versionCode 360
-        versionName "3.6.0"
-        flavorDimensions "360"  // 和 versionCode相同
+        versionCode 100
+        versionName "1.0.0"
+        flavorDimensions "100"  // 和 versionCode相同
         ndk {
             // 选择要添加的对应 cpu 类型的 .so 库。
             abiFilters 'armeabi-v7a', 'x86'
@@ -43,13 +43,14 @@ android {
 
         manifestPlaceholders = [
                 JPUSH_PKGNAME: applicationId,
-                JPUSH_APPKEY : defaultProperties.getProperty('JPUSH_APPKEY'), //JPush 上注册的包名对应的 Appkey.
-                JPUSH_CHANNEL: "developer-default",  // 暂时填写默认值即可.
+                JPUSH_APPKEY : defaultProperties.getProperty('JPUSH_APPKEY'),  // JPush上注册的包名对应的 Appkey
+                JPUSH_CHANNEL: "developer-default",  // 暂时填写默认值即可
         ]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs 'zh'
         multiDexEnabled true
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -63,13 +64,11 @@ android {
         }
     }
 
-
-    //多渠道打包
+    // 多渠道打包
     productFlavors {
         dev {  // 开发测试版本
             buildConfigField("String", "UMENG_APPKEY_DEV", "\"${defaultProperties['UMENG_APPKEY_DEV']}\"")
             buildConfigField("String", "SENTRY_DSN", "\"${defaultProperties['SENTRY_DSN_DEV']}\"")
-
         }
         production {   // 正式发布版本
             buildConfigField("String", "UMENG_APPKEY", "\"${defaultProperties['UMENG_APPKEY']}\"")
@@ -82,31 +81,25 @@ android {
             enabled = true
         }
     }
+
     namespace 'com.carlos.grabredenvelope'
 
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
     }
-
 }
 
-
 configurations.all {
-
-    /**
-     * 用于控制SNAPSHOT版本下载刷新频率，默认每隔24小时，gradle会检查一次依赖
-     * Release版本如果本地已下载则不会主动从镜像下载
-     */
-    // 每个 build 的发布检查更新
+    // 用于控制 SNAPSHOT版本下载刷新频率，默认每隔24小时，gradle会检查一次依赖
+    // Release版本如果本地已下载则不会主动从镜像下载
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-
 }
 
 // 修改APK名字
 android.applicationVariants.all { variant ->
     variant.outputs.all {
-        outputFileName = "GrabRedEnvelope${versionName}.apk"
+        outputFileName = "robRedEnvelope${versionName}.apk"
     }
 }
 
@@ -131,26 +124,23 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
-//    implementation 'com.carlos.cutils:cutils:0.0.28'
     implementation 'com.github.xbdcc:cutils:0.0.30-SNAPSHOT'
 
-    //jpush
+    // jpush
     implementation 'cn.jiguang.sdk:jcore:4.0.0'
     implementation 'cn.jiguang.sdk:jpush:4.8.5'
 
-    //umeng
-    implementation 'com.umeng.umsdk:common:9.5.0'// 必选
-    implementation 'com.umeng.umsdk:asms:1.4.1'// 必选
-    implementation 'com.umeng.umsdk:apm:1.7.0' // 错误分析模块改为独立库，看crash和性能数据请一定集成
+    // umeng
+    implementation 'com.umeng.umsdk:common:9.5.0'  // 必选
+    implementation 'com.umeng.umsdk:asms:1.4.1'  // 必选
+    implementation 'com.umeng.umsdk:apm:1.7.0'  // 错误分析模块改为独立库，看 crash和性能数据请一定集成
 
     implementation 'io.sentry:sentry-android:6.10.0'
     implementation 'com.google.android.material:material:1.5.0'
 
-    implementation 'org.greenrobot:greendao:3.2.2' // add library
+    implementation 'org.greenrobot:greendao:3.2.2'  // 添加库
 
     implementation 'androidx.multidex:multidex:2.0.1'
-
 }

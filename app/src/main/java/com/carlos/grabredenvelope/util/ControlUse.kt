@@ -57,7 +57,7 @@ class ControlUse(private val context: Context) {
 
     fun getStopTime() {
         GlobalScope.launch {
-            val data = NetUtils().get("https://github.com/JCXYOZH/rob-red-envelope/blob/master/control.json")
+            val data = NetUtils().get("http://xbdcc.cn/GrabRedEnvelope/control.json")
             try {
                 val stopTime = JSONObject(data).getString(AppUtils.getVersionName())
                 RedEnvelopePreferences.stopTime = stopTime
